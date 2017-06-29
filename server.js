@@ -4,7 +4,7 @@ var io = require('socket.io')(process.env.PORT || 3000);
 //The id of the player represented as a Hex number
 var shortid = require('shortid');
 
-console.log('server started');
+console.log('heroku server started');
 
 //The list of all the players on the server
 var players = [];
