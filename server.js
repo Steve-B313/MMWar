@@ -1,5 +1,5 @@
 //Access the functionality that socket.io provides & if we dont have a port set, use the given port
-var io = require('socket.io')(8080);
+var io = require('socket.io')(process.env.PORT || 8080);
 
 //The id of the player represented as a Hex number
 var shortid = require('shortid');
