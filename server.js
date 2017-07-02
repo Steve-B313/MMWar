@@ -1,3 +1,4 @@
+//wss://project-one-mmwar.herokuapp.com:443/socket.io/?EIO=4&transport=websocket
 //Access the functionality that socket.io provides & if we dont have a port set, use the given port
 var io = require('socket.io')(process.env.PORT || 8080);
 
