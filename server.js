@@ -103,7 +103,6 @@ io.on('connection', function (socket) {
     //To delete the disconnected player from the server
     socket.on('disconnect', function () {
         console.log('removing client: ' + thisPlayerId);
-        counter--;
         //To remove the player and the match from the server list
         delete players[thisPlayerId];
         //To tell all the clients to delete the players character from the scene
