@@ -42,7 +42,6 @@ io.on('connection', function (socket) {
     
     console.log('client connected, id: ', thisPlayerId);
     console.log('match id: ', match);
-    console.log('counter: ', counter + 1);
     console.log('=========================');
     
     //Tell the current player that he regestered succesfully to the server
@@ -111,4 +110,8 @@ io.on('connection', function (socket) {
 		socket.leave(socket.room);
 
     });
-})
+});
+
+setInterval(function(){
+        io.emit('update');
+    }, 4000);
