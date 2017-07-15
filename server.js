@@ -57,7 +57,7 @@ io.on('connection', function (socket) {
                 }
                 console.log('connected to postgres for selecting');
                 const select = {
-                    text: 'SELECT * FROM user_db WHERE id = $1',
+                    text: 'SELECT * FROM user_db WHERE id = $1;',
                     values: [playerData.id],
                 };
                 client
@@ -75,8 +75,8 @@ io.on('connection', function (socket) {
                 }
                 console.log('connected to postgres for inserting');
                 const insert = {
-                    text: 'INSERT INTO user_db(id, name, Played, Won) VALUES($1, $2, $3, $4)',
-                    values [thisPlayerId, playerData.name, playerData.Played, playerData.Won],
+                    text: 'INSERT INTO user_db(id, name, Played, Won) VALUES($1, $2, $3, $4);',
+                    values: [thisPlayerId, playerData.name, playerData.Played, playerData.Won],
                 };
 				client
                     .query(insert)
