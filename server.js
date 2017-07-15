@@ -56,7 +56,7 @@ io.on('connection', function (socket) {
                     return console.error(err);
                 }
                 console.log('connected to postgres for selecting');
-                /*const select = {
+                const select = {
                     text: 'SELECT * FROM user_db WHERE id = $1',
                     values: [playerData.id],
                 };
@@ -64,7 +64,7 @@ io.on('connection', function (socket) {
                     .query(select)
                     .on('row', function (row) {
                         console.log(JSON.stringify(row));
-                    });*/
+                    });
             });
         } else {
             thisPlayerId = shortid.generate();
@@ -74,7 +74,7 @@ io.on('connection', function (socket) {
                     return console.error(err);
                 }
                 console.log('connected to postgres for inserting');
-                /*const insert = {
+                const insert = {
                     text: 'INSERT INTO user_db(id, name, Played, Won) VALUES($1, $2, $3, $4)',
                     values [thisPlayerId, playerData.name, playerData.Played, playerData.Won],
                 };
@@ -82,9 +82,11 @@ io.on('connection', function (socket) {
                     .query(insert)
                     .on('row', function (row) {
                         console.log(JSON.strigify(row));
-                    });*/
+                    });
 			});
+            socket.emit('myId', { id: thisPlayerId });
 		}
+        pg.end();
     });
 
     
@@ -109,7 +111,6 @@ io.on('connection', function (socket) {
         socket.broadcast.to(socket.room).emit('disconnected', { id: thisPlayerId });
         // leave the current room
 		socket.leave(socket.room);
-
     });
 });
 //Update the camps of all connected players
