@@ -5,6 +5,10 @@ var io = require('socket.io')(process.env.PORT || 8080);
 //The id of the player represented as a Hex number
 var shortid = require('shortid');
 
+//The postgres database
+var pg = require('pg');
+pg.defaults.ssl = true;
+
 console.log('heroku server started');
 
 //The list of all the players on the server
@@ -22,14 +26,14 @@ var matches = [];
 //This counter is used to determine if the player is the first or the second
 var counter = 0;
 
+//Database URL
+var connectionString = "postgres://srgvuycakcyozi:6f209485fdb080e2ed9f8fda6226b3e5484a29bb23e24960bfffe5d708b760d8@ec2-107-20-250-195.compute-1.amazonaws.com:5432/d8fcrmkf51oman";
+
 //Callback for the 1st connection
 io.on('connection', function (socket) {
 
-    var thisPlayerId = shortid.generate();
-    var player = {
-        id: thisPlayerId
-    };
-    players[thisPlayerId] = player;
+    //Player id
+    var thisPlayerId;
     
     //You are the first player, create the match
     if (counter == 0) {
@@ -40,65 +44,62 @@ io.on('connection', function (socket) {
     socket.room = match;
     socket.join(match);
     
-    console.log('client connected, id: ', thisPlayerId);
-    console.log('match id: ', match);
-    console.log('=========================');
+    //Tell the player that he connected and ask him for his Id
+    socket.emit('register', { match: thisMatchId, camp: counter });
+    //The client recieve the register callback and sends his id
+	socket.on('playerId', function(playerData) {
+        if (playerData.id) {//There is a previous id
+            thisPlayerId = playerData.id;
+            console.log('there is a previously existing id: ', playerData.id);
+            pg.connect (connectionString, function(err, client) {
+                if (err) {
+                    return console.error(err);
+                }
+                console.log('connected to postgres for selecting');
+                /*const select = {
+                    text: 'SELECT * FROM user_db WHERE id = $1',
+                    values: [playerData.id],
+                };
+                client
+                    .query(select)
+                    .on('row', function (row) {
+                        console.log(JSON.stringify(row));
+                    });*/
+            });
+        } else {
+            thisPlayerId = shortid.generate();
+            console.log('new id: ', thisPlayerId);
+            pg.connect(connectionString, function(err, client) {
+                if (err) {
+                    return console.error(err);
+                }
+                console.log('connected to postgres for inserting');
+                /*const insert = {
+                    text: 'INSERT INTO user_db(id, name, Played, Won) VALUES($1, $2, $3, $4)',
+                    values [thisPlayerId, playerData.name, playerData.Played, playerData.Won],
+                };
+				client
+                    .query(insert)
+                    .on('row', function (row) {
+                        console.log(JSON.strigify(row));
+                    });*/
+			});
+		}
+    });
+
     
-    //Tell the current player that he regestered succesfully to the server
-    socket.emit('register', { id: thisPlayerId, match: thisMatchId, camp: counter });
     //You are the second player, echo the start command
     if (counter != 0) {
         io.in(socket.room).emit('ready', { match: thisMatchId });
     }
     counter++;
     counter = counter % 2;
-    
+
     //Broadcast to both players the attack
     socket.on('attack', function (data) {
         console.log('attack ', JSON.stringify(data));
         socket.broadcast.to(socket.room).emit('attack', data);
     });
-    //socket.broadcast.to(match).emit('registered', { id: thisPlayerId });
-    
-    //Ask all the players to give me there current position so i can spawn them when I connect
-//    socket.broadcast.emit('requestPosition');
-    
-    //To spawn all the players on the server
-//    for(var playerId in players) {
-//                
-//        if(playerId == thisPlayerId)
-//            continue;
-//        
-//        socket.emit('spawn', players[playerId]);
-//        console.log('sending spwan to new player for id: ', playerId);
-//    };
-//    
-    //Nested callback for moving after the conenction was made, data are the position
-//    socket.on('move', function (data) {
-//        console.log('client moved', JSON.stringify(data));
-//        data.id = thisPlayerId;        
-//        
-        //Telling all the clients that we moved
-//        socket.broadcast.emit('move', data);
-//    });
-//    
-    //Tell every other player about our position
-//    socket.on('updatePosition', function (data) {
-//        console.log('updated position: ', data);
-//        data.id = thisPlayerId;
-//        
-        //Tell 
-//        socket.broadcast.emit('updatePosition', data);
-//    });
-//    
-//    socket.on('attack', function (data) {
-//        console.log('attack request: ', data);
-//        data.id = thisPlayerId;
-//        
-        //io is the instece of the server not the current socket, this means broadcast to everybody including the original sender
-//        io.emit('attack', data);
-//    });
-
     //To delete the disconnected player from the server
     socket.on('disconnect', function () {
         console.log('removing client: ' + thisPlayerId);
@@ -111,7 +112,7 @@ io.on('connection', function (socket) {
 
     });
 });
-
+//Update the camps of all connected players
 setInterval(function(){
         io.emit('update');
     }, 4000);
