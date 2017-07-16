@@ -64,6 +64,7 @@ io.on('connection', function (socket) {
                     .query(select)
                     .on('row', function (row) {
                         console.log(JSON.stringify(row));
+                        console.log('1===============1');
                     });
             });
         } else {
@@ -75,13 +76,14 @@ io.on('connection', function (socket) {
                 }
                 console.log('connected to postgres for inserting');
                 const insert = {
-                    text: 'INSERT INTO user_db(id, name, Played, Won) VALUES($1, $2, $3, $4);',
+                    text: 'INSERT INTO user_db(id, name, played, won) VALUES($1, $2, $3, $4);',
                     values: [thisPlayerId, playerData.name, playerData.Played, playerData.Won],
                 };
 				client
                     .query(insert)
                     .on('row', function (row) {
-                        console.log(JSON.strigify(row));
+                        console.log(JSON.stringify(row));
+                        console.log('2===============2');
                     });
 			});
             socket.emit('myId', { id: thisPlayerId });
