@@ -90,10 +90,6 @@ io.on('connection', function (socket) {
 		}
         pg.end();
     });
-    var player = {
-        id: thisPlayerId
-    };
-    players[thisPlayerId] = player;
     
     //You are the second player, echo the start command
     if (counter != 0) {
@@ -111,7 +107,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('removing client: ' + thisPlayerId);
         //To remove the player and the match from the server list
-        delete players[thisPlayerId];
+        //delete players[thisPlayerId];
         //To tell all the clients to delete the players character from the scene
         socket.broadcast.to(socket.room).emit('disconnected', { id: thisPlayerId });
         // leave the current room
