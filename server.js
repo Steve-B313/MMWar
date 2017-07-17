@@ -56,7 +56,7 @@ io.on('connection', function (socket) {
                     .query(select)
                     .on('row', function (row) {
                         console.log(JSON.stringify(row));
-                        socket.Emit('playerInfo', { id: row.id, name: row.name, played: row.played, won: row.won });
+                        socket.emit('playerInfo', { id: row.id, name: row.name, played: row.played, won: row.won });
                     });
             });
         } else {
