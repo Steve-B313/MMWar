@@ -63,9 +63,11 @@ io.on('connection', function (socket) {
                 client
                     .query(select)
                     .on('row', function (row) {
-                        console.log(JSON.stringify(row));
+                        //console.log(JSON.stringify(row));
+                        console.log(row.id);
+                        //socket.Emit('playerInfo', row);
                     });
-                console.log('1===============1');
+                console.log('1==============================1');
             });
         } else {
             thisPlayerId = shortid.generate();
