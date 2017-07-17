@@ -38,7 +38,7 @@ io.on('connection', function (socket) {
     var thisPlayerId;
     
     //The client pressed MultiPlayer button
-	socket.on('playerId', function(playerData) {
+	socket.on('register', function(playerData) {
         console.log('getting id');
         if (playerData.id) {//There is a previous id
             thisPlayerId = playerData.id;
