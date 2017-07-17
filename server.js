@@ -31,12 +31,15 @@ var connectionString = "postgres://srgvuycakcyozi:6f209485fdb080e2ed9f8fda6226b3
 
 //Callback for the 1st connection
 io.on('connection', function (socket) {
+    
+    console.log('connected to server');
 
     //Player id
     var thisPlayerId;
-       
+    
     //The client pressed MultiPlayer button
 	socket.on('playerId', function(playerData) {
+        console.log('getting id');
         if (playerData.id) {//There is a previous id
             thisPlayerId = playerData.id;
             console.log('there is a previously existing id: ', playerData.id);
@@ -81,6 +84,8 @@ io.on('connection', function (socket) {
     
     //The client pressed FindMatch button
     socket.on('findMatch', function (data) {
+        console.log('finding match');
+        
         //You are the first player, create the match
         if (counter == 0) {
             thisMatchId = shortid.generate();
