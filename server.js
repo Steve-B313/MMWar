@@ -34,19 +34,8 @@ io.on('connection', function (socket) {
 
     //Player id
     var thisPlayerId;
-    
-    //You are the first player, create the match
-    if (counter == 0) {
-        thisMatchId = shortid.generate();
-        match = thisMatchId.toString();
-        matches[thisMatchId] = match;
-    } 
-    socket.room = match;
-    socket.join(match);
-    
-    //Tell the player that he connected and ask him for his Id
-    socket.emit('register', { match: thisMatchId, camp: counter });
-    //The client recieve the register callback and sends his id
+       
+    //The client pressed MultiPlayer button
 	socket.on('playerId', function(playerData) {
         if (playerData.id) {//There is a previous id
             thisPlayerId = playerData.id;
@@ -63,11 +52,9 @@ io.on('connection', function (socket) {
                 client
                     .query(select)
                     .on('row', function (row) {
-                        //console.log(JSON.stringify(row));
-                        console.log(row.id);
-                        //socket.Emit('playerInfo', row);
+                        console.log(JSON.stringify(row));
+                        socket.Emit('playerInfo', { id: row.id, name: row.name, played: row.played, won: row.won });
                     });
-                console.log('1==============================1');
             });
         } else {
             thisPlayerId = shortid.generate();
@@ -86,20 +73,33 @@ io.on('connection', function (socket) {
                     .on('row', function (row) {
                         console.log(JSON.stringify(row));
                     });
-                console.log('2===============2');
 			});
             socket.emit('myId', { id: thisPlayerId });
 		}
         pg.end();
     });
     
-    //You are the second player, echo the start command
-    if (counter != 0) {
-        io.in(socket.room).emit('ready', { match: thisMatchId });
-    }
-    counter++;
-    counter = counter % 2;
+    //The client pressed FindMatch button
+    socket.on('findMatch', function (data) {
+        //You are the first player, create the match
+        if (counter == 0) {
+            thisMatchId = shortid.generate();
+            match = thisMatchId.toString();
+            matches[thisMatchId] = match;
+        } 
+        socket.room = match;
+        socket.join(match);
 
+        //You are the second player, echo the start command
+        if (counter != 0) {
+            io.in(socket.room).emit('ready', { match: thisMatchId });
+        }
+        counter++;
+        counter = counter % 2;
+
+        socket.emit('findMatch', { match: thisMatchId, camp: counter });
+    });
+    
     //Broadcast to both players the attack
     socket.on('attack', function (data) {
         console.log('attack ', JSON.stringify(data));
