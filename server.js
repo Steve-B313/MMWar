@@ -75,8 +75,8 @@ io.on('connection', function (socket) {
                 }
                 console.log('connected to postgres for inserting');
                 const insert = {
-                    text: 'INSERT INTO user_db(id, name, played, won) VALUES($1, $2, $3, $4);',
-                    values: [thisPlayerId, playerData.name, 0, 0],
+                    text: 'INSERT INTO user_db(id, played, won) VALUES($1, $2, $3);',
+                    values: [thisPlayerId, 0, 0],
                 };
 				client
                     .query(insert)
