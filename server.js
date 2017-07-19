@@ -48,26 +48,7 @@ io.on('connection', function (socket) {
     socket.emit('register', { match: thisMatchId, camp: counter });
     //The client recieve the register callback and sends his id
 	socket.on('playerId', function(playerData) {
-        if (playerData.id.equals('!@#$%')) {//There is NO previous id
-            thisPlayerId = shortid.generate();
-            console.log('new id: ', thisPlayerId);
-            pg.connect(connectionString, function(err, client) {
-                if (err) {
-                    return console.error(err);
-                }
-                console.log('connected to postgres for inserting');
-                const insert = {
-                    text: 'INSERT INTO user_db(id, played, won) VALUES($1, $2, $3);',
-                    values: [thisPlayerId, 0, 0],
-                };
-				client
-                    .query(insert)
-                    .on('row', function (row) {
-                        console.log(JSON.stringify(row));
-                    });
-			});
-            socket.emit('myId', { id: thisPlayerId });
-		} else {
+        if (playerData.id) {//There is a previous id
             thisPlayerId = playerData.id;
             console.log('there is a previously existing id: ', playerData.id);
             pg.connect (connectionString, function(err, client) {
@@ -85,7 +66,26 @@ io.on('connection', function (socket) {
                         console.log(JSON.stringify(row));
                     });
             });
-        }
+        } else {
+            thisPlayerId = shortid.generate();
+            console.log('new id: ', thisPlayerId);
+            pg.connect(connectionString, function(err, client) {
+                if (err) {
+                    return console.error(err);
+                }
+                console.log('connected to postgres for inserting');
+                const insert = {
+                    text: 'INSERT INTO user_db(id, name, played, won) VALUES($1, $2, $3, $4);',
+                    values: [thisPlayerId, playerData.name, 0, 0],
+                };
+				client
+                    .query(insert)
+                    .on('row', function (row) {
+                        console.log(JSON.stringify(row));
+                    });
+			});
+            socket.emit('myId', { id: thisPlayerId });
+		}
         pg.end();
     });
     
