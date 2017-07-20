@@ -119,6 +119,7 @@ io.on('connection', function (socket) {
                     console.log(JSON.stringify(row));
                 });
 			});
+        pg.end();
     });
     
     //Update winning case
@@ -138,6 +139,7 @@ io.on('connection', function (socket) {
                     console.log(JSON.stringify(row));
                 });
             });
+        pg.end();
     });
 
     //To delete the disconnected player from the server
