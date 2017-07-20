@@ -101,6 +101,45 @@ io.on('connection', function (socket) {
         console.log('attack ', JSON.stringify(data));
         socket.broadcast.to(socket.room).emit('attack', data);
     });
+    
+    //Update losing case
+    socket.on('lostMatch', function() {
+        pg.connect(connectionString, function(err, client) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log('connected to postgres for updating.. lost');
+            const updateLost = {
+                text: 'UPDATE user_db SET (played = played + 1) WHERE id = $1;',
+                values: [thisPlayerId],
+            };
+            client
+                .query(updateLost)
+                .on('row', function (row) {
+                    console.log(JSON.stringify(row));
+                });
+			});
+    });
+    
+    //Update winning case
+    socket.on('wonMatch', function() {
+        pg.connect(connectionString, function(err, client) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log('connected to postgres for updating.. won');
+            const updateWon = {
+                text: 'UPDATE user_db SET (played = played + 1, won = won + 1) WHERE id = $1;',
+                values: [thisPlayerId],
+            };
+            client
+                .query(updateWon)
+                .on('row', function (row) {
+                    console.log(JSON.stringify(row));
+                });
+            });
+    })
+
     //To delete the disconnected player from the server
     socket.on('disconnect', function () {
         console.log('removing client: ' + thisPlayerId);
