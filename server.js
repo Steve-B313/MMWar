@@ -110,7 +110,7 @@ io.on('connection', function (socket) {
             }
             console.log('connected to postgres for updating.. lost');
             const updateLost = {
-                text: 'UPDATE user_db SET (played = played + 1) WHERE id = $1;',
+                text: 'UPDATE user_db SET played = played + 1 WHERE id = $1;',
                 values: [thisPlayerId],
             };
             client
@@ -129,7 +129,7 @@ io.on('connection', function (socket) {
             }
             console.log('connected to postgres for updating.. won');
             const updateWon = {
-                text: 'UPDATE user_db SET (played = played + 1, won = won + 1) WHERE id = $1;',
+                text: 'UPDATE user_db SET played = played + 1, won = won + 1 WHERE id = $1;',
                 values: [thisPlayerId],
             };
             client
@@ -138,7 +138,7 @@ io.on('connection', function (socket) {
                     console.log(JSON.stringify(row));
                 });
             });
-    })
+    });
 
     //To delete the disconnected player from the server
     socket.on('disconnect', function () {
